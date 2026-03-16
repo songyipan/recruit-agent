@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { writeFile } from "fs/promises"
-import { mkdir } from "fs/promises"
-import { join } from "path"
+import { uploadPDFFile } from "@/lib/services/pdfService"
+import { isAllowedFileType, isValidFileSize } from "@/lib/utils/fileUtils"
 
 // 允许的文件类型
 const ALLOWED_TYPES = ["application/pdf"]
@@ -19,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 验证文件类型
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    if (!isAllowedFileType(file.type, ALLOWED_TYPES)) {
       return NextResponse.json(
         { error: "只允许上传 PDF 文件" },
         { status: 400 }
@@ -27,38 +26,20 @@ export async function POST(request: NextRequest) {
     }
 
     // 验证文件大小
-    if (file.size > MAX_SIZE) {
+    if (!isValidFileSize(file.size, MAX_SIZE)) {
       return NextResponse.json(
         { error: "文件大小不能超过 10MB" },
         { status: 400 }
       )
     }
 
-    // 创建上传目录
-    const uploadDir = join(process.cwd(), "uploads")
-    await mkdir(uploadDir, { recursive: true })
-
-    // 生成唯一文件名
-    const timestamp = Date.now()
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_")
-    const filename = `${timestamp}_${originalName}`
-    const filepath = join(uploadDir, filename)
-
-    // 写入文件
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    await writeFile(filepath, buffer)
+    // 调用服务层上传文件
+    const result = await uploadPDFFile(file)
 
     return NextResponse.json({
       success: true,
       message: "文件上传成功",
-      data: {
-        filename,
-        originalName: file.name,
-        size: file.size,
-        type: file.type,
-        path: `/uploads/${filename}`,
-      },
+      data: result,
     })
   } catch (error) {
     console.error("上传错误:", error)

@@ -42,3 +42,17 @@ model Embedding {
 
     @@map("embeddings")
 }
+
+// 候选人简历分析结果表
+model CandidateProfile {
+    id              String                      @id @default(cuid())
+    candidateId     String                      @map("candidate_id")
+    name            String
+    aiReport        Json                        @map("ai_report") // AI 分析报告
+    resumeEmbedding Unsupported("vector(1536)") @map("resume_embedding") // 简历向量
+    pdfUrl          String                      @map("pdf_url") // PDF 文件地址
+    createdAt       DateTime                    @default(now()) @map("created_at")
+    updatedAt       DateTime                    @updatedAt @map("updated_at")
+
+    @@map("candidate_profiles")
+}
