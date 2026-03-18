@@ -42,3 +42,29 @@ export function isSupportedContentType(contentType: string): boolean {
     contentType.includes("application/x-www-form-urlencoded")
   )
 }
+
+export async function getSupportedRequestPayload(
+  request: NextRequest
+): Promise<Record<string, FormDataEntryValue | unknown>> {
+  const contentType = request.headers.get("content-type") || ""
+
+  if (contentType.includes("application/json")) {
+    const body = (await request.json()) as unknown
+
+    if (body && typeof body === "object" && !Array.isArray(body)) {
+      return body as Record<string, unknown>
+    }
+
+    return {}
+  }
+
+  if (
+    contentType.includes("multipart/form-data") ||
+    contentType.includes("application/x-www-form-urlencoded")
+  ) {
+    const formData = await request.formData()
+    return Object.fromEntries(formData.entries())
+  }
+
+  return {}
+}
