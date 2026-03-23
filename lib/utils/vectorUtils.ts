@@ -1,4 +1,4 @@
-const RESUME_EMBEDDING_DIMENSIONS = 1536
+const RESUME_EMBEDDING_DIMENSIONS = 2048
 
 export function toPgVectorLiteral(values: number[]): string {
   if (values.length !== RESUME_EMBEDDING_DIMENSIONS) {

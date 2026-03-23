@@ -36,7 +36,7 @@ model Post {
 model Embedding {
     id        String                      @id @default(cuid())
     content   String // 原始文本内容
-    embedding Unsupported("vector(1536)") // OpenAI 嵌入向量维度为 1536
+    embedding Unsupported("vector(2048)") // 当前嵌入模型维度为 2048
     metadata  Json? // 可选的元数据
     createdAt DateTime                    @default(now())
 
@@ -49,7 +49,7 @@ model CandidateProfile {
     candidateId     String                      @map("candidate_id")
     name            String
     aiReport        Json                        @map("ai_report") // AI 分析报告
-    resumeEmbedding Unsupported("vector(1536)") @map("resume_embedding") // 简历向量
+    resumeEmbedding Unsupported("vector(2048)") @map("resume_embedding") // 简历向量
     pdfUrl          String                      @map("pdf_url") // PDF 文件地址
     createdAt       DateTime                    @default(now()) @map("created_at")
     updatedAt       DateTime                    @updatedAt @map("updated_at")

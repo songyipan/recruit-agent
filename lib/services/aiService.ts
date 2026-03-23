@@ -35,8 +35,9 @@ export const interviewEvaluationSchema = z.object({
 export type InterviewEvaluation = z.infer<typeof interviewEvaluationSchema>
 
 const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
-const DEFAULT_ANALYSIS_MODEL = "openrouter/hunter-alpha"
-const DEFAULT_EMBEDDING_MODEL = "openai/text-embedding-3-small"
+const DEFAULT_ANALYSIS_MODEL = "openrouter/auto"
+const DEFAULT_EMBEDDING_MODEL =
+  "nvidia/llama-nemotron-embed-vl-1b-v2:free"
 
 function getRequiredEnv(name: string): string {
   const value = process.env[name]?.trim()
@@ -70,7 +71,15 @@ function createOpenRouterClient() {
 }
 
 function getAnalysisModelId(): string {
-  return process.env.OPENROUTER_MODEL?.trim() || DEFAULT_ANALYSIS_MODEL
+  const modelId = process.env.OPENROUTER_MODEL?.trim() || DEFAULT_ANALYSIS_MODEL
+
+  if (/embed(ding)?/i.test(modelId)) {
+    throw new Error(
+      `OPENROUTER_MODEL 当前配置为嵌入模型 (${modelId})，请改为聊天模型，例如 openrouter/auto`
+    )
+  }
+
+  return modelId
 }
 
 function getEmbeddingModelId(): string {

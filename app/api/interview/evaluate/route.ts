@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     try {
       rawBody = (await request.json()) as unknown
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         {
           error: "请求体不是合法 JSON",
